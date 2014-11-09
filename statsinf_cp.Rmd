@@ -1,0 +1,69 @@
+---
+title: "Course Project - Statistical Inference"
+author: "Candice MH"
+date: "Sunday, November 09, 2014"
+output: word_document
+---
+
+As per the course project description, this project explores the properties of the exponential distribution. The mean of the exponential distribution is 1/lambda, where lambda is the rate parameter. For this project, lambda=0.2. The distribution of the mean of a random sample of size n=40 from the exponential distribution is investigated through a simulation exercise in which samples of size n are drawn 1000 times, resulting in 1000 sample means. The theoretical distribution of the sample mean is 1/lambda, and the standard error is 1/(lambda*sqrt(n)).
+
+```{r, echo=FALSE}
+lambda<-0.2
+samplesize<-40
+nreps<-1000
+samplemeans<-rep(0,nreps)
+
+for (i in 1:nreps) {
+  tempsample<-rexp(samplesize,lambda)
+	samplemeans[i]<-mean(tempsample)
+}
+```
+
+##Distribution centrality
+This section shows where the distribution is centered and compares it to the theoretical center of the distribution.
+
+```{r}
+#sample (mean)
+mean(samplemeans)
+#theory (mean)
+theo_mean<-1/lambda
+theo_mean
+```
+
+As seen, the mean of the sample means (mean(samplemeans)) is very close to the theoretical mean (theo_mean). To visualise the distribution of the mean of the sample means compared to the theoretical distribution, see the plot below. As shown, the distribution of the mean of the sample means (red) matches closely with the theoretical distribution (blue). 
+
+```{r, echo=FALSE}
+hist(samplemeans,breaks=20,col="red",freq=FALSE,xlab="Sample means",main="Density of sample means (red),\n with theoretical density (blue)")
+xfit<-seq(min(samplemeans),max(samplemeans),length=samplesize) 
+yfit<-dnorm(xfit,mean=1/lambda,sd=1/(lambda*sqrt(samplesize))) 
+lines(xfit, yfit, col="blue", lwd=2)
+```
+
+##Distribution variability
+This section shows how variability of the distribution of the sample mean is and compares it to the theoretical variance of the distribution of the sample mean. As seen, the variance of the sample means var(samplemeans) is very close to the theoretical variance (theo_var_about_mean). 
+
+```{r}
+#sample (variability about mean)
+var(samplemeans)
+#theory (variability about mean)
+theo_var_about_mean<-1/(samplesize*lambda^2)
+theo_var_about_mean
+```
+
+##Distribution normality
+This section shows that the distribution of the sample mean is approximately normal. The qqplot below visualises the distribution of the sample means (black) compared to the theoretical distribution (red). Given the very minor departure of the sampling distribution from the theoretical distribution, we expect that the two distributions are equal. 
+
+```{r, echo=FALSE}
+qqnorm(samplemeans,ylab="Sample means from simulation"); qqline(samplemeans, col = 2)
+```
+
+The central limit theorem states that the sampling mean is normally distributed, even though the distribution sampled from is exponential. This is visualised by comparing the sampling distribution (left) with the distribution of sample means (right).
+
+```{r, echo=FALSE}
+sample2<-rexp(nreps,lambda)
+y<-c(samplemeans,sample2)
+x<-c(rep("Mean of sample",nreps),rep("Single sample",nreps))
+xy_df<-data.frame(x,y)
+library(lattice)
+histogram(~ y | as.factor(x),xlab="Sample value",main="Density of means of many samples (left)\n and a single sample (right)")
+```
